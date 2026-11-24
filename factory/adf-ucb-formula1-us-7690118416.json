@@ -1,0 +1,11 @@
+{
+	"name": "adf-ucb-formula1-us-7690118416",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true,
+			"isExplicitlySet": false
+		}
+	},
+	"location": "eastus"
+}
