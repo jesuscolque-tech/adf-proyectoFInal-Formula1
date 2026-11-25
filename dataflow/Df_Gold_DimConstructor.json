@@ -1,0 +1,78 @@
+{
+	"name": "Df_Gold_DimConstructor",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Constructors",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimConstructor",
+						"type": "DatasetReference"
+					},
+					"name": "SinkDimConstructor"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SeleccionarDimConstructor"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          constructorId as integer,",
+				"          constructorRef as string,",
+				"          name as string,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 select(mapColumn(",
+				"          constructorId,",
+				"          constructorRef,",
+				"          name,",
+				"          nationality",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimConstructor",
+				"SeleccionarDimConstructor sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          constructor_sk as integer,",
+				"          constructor_id as integer,",
+				"          constructor_ref as string,",
+				"          constructor_name as string,",
+				"          nationality as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          constructor_id = constructorId,",
+				"          constructor_ref = constructorRef,",
+				"          constructor_name = name,",
+				"          nationality",
+				"     )) ~> SinkDimConstructor"
+			]
+		}
+	}
+}

@@ -1,0 +1,109 @@
+{
+	"name": "Df_Gold_DimDate",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Races",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimDate",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "GenerarDimDate"
+				},
+				{
+					"name": "EliminarFechasDuplicadas"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          raceId as integer,",
+				"          year as integer,",
+				"          round as integer,",
+				"          circuitId as integer,",
+				"          name as string,",
+				"          date as date,",
+				"          time as string,",
+				"          url as string,",
+				"          fp1_date as date,",
+				"          fp1_time as string,",
+				"          fp2_date as date,",
+				"          fp2_time as string,",
+				"          fp3_date as date,",
+				"          fp3_time as string,",
+				"          quali_date as date,",
+				"          quali_time as string,",
+				"          sprint_date as date,",
+				"          sprint_time as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(date_sk = toInteger(toString(date, 'yyyyMMdd')),",
+				"          full_date = date,",
+				"          year = toShort(year(date)),",
+				"          decade = concat(toString(year(date) - (year(date) % 10)), 's'),",
+				"          quarter = toInteger(ceil(month(date) / 3.0)),",
+				"          month = month(date),",
+				"          month_name = toString(date, 'MMMM'),",
+				"          day_of_week = toString(date, 'EEEE')) ~> GenerarDimDate",
+				"GenerarDimDate aggregate(groupBy(date_sk),",
+				"     full_date = first(full_date),",
+				"          year = first(year),",
+				"          decade = first(decade),",
+				"          quarter = first(quarter),",
+				"          month = first(month),",
+				"          month_name = first(month_name),",
+				"          day_of_week = first(day_of_week)) ~> EliminarFechasDuplicadas",
+				"EliminarFechasDuplicadas sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          date_sk as integer,",
+				"          full_date as date,",
+				"          year as integer,",
+				"          decade as string,",
+				"          quarter as integer,",
+				"          month as integer,",
+				"          month_name as string,",
+				"          day_of_week as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          date_sk,",
+				"          full_date,",
+				"          year,",
+				"          decade,",
+				"          quarter,",
+				"          month,",
+				"          month_name,",
+				"          day_of_week",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

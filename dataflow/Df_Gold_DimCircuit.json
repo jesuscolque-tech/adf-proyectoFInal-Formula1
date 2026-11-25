@@ -1,0 +1,94 @@
+{
+	"name": "Df_Gold_DimCircuit",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Circuits",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimCircuit",
+						"type": "DatasetReference"
+					},
+					"name": "SinkDimCircuit"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SeleccionarDimCircuit"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          circuitId as integer,",
+				"          circuitRef as string,",
+				"          name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          lat as decimal(9,6),",
+				"          lng as decimal(9,6),",
+				"          alt as integer,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 select(mapColumn(",
+				"          circuit_id = circuitId,",
+				"          circuit_ref = circuitRef,",
+				"          circuit_name = name,",
+				"          location,",
+				"          country,",
+				"          latitude = lat,",
+				"          longitude = lng,",
+				"          altitude_m = alt",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimCircuit",
+				"SeleccionarDimCircuit sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          circuit_sk as integer,",
+				"          circuit_id as integer,",
+				"          circuit_ref as string,",
+				"          circuit_name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          latitude as decimal(9,6),",
+				"          longitude as decimal(9,6),",
+				"          altitude_m as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          circuit_id,",
+				"          circuit_ref,",
+				"          circuit_name,",
+				"          location,",
+				"          country,",
+				"          latitude,",
+				"          longitude,",
+				"          altitude_m",
+				"     )) ~> SinkDimCircuit"
+			]
+		}
+	}
+}

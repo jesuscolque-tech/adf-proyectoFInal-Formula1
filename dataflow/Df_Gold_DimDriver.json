@@ -1,0 +1,101 @@
+{
+	"name": "Df_Gold_DimDriver",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Drivers",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimDriver",
+						"type": "DatasetReference"
+					},
+					"name": "SinkDimDriver"
+				}
+			],
+			"transformations": [
+				{
+					"name": "GenerarDimDriver"
+				},
+				{
+					"name": "SeleccionarDimDriver"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          driverId as integer,",
+				"          driverRef as string,",
+				"          number as integer,",
+				"          code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          dob as date,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(full_name = concat(forename, ' ', surname)) ~> GenerarDimDriver",
+				"GenerarDimDriver select(mapColumn(",
+				"          driverId,",
+				"          driverRef,",
+				"          number,",
+				"          code,",
+				"          forename,",
+				"          surname,",
+				"          dob,",
+				"          nationality,",
+				"          full_name",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimDriver",
+				"SeleccionarDimDriver sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          driver_sk as integer,",
+				"          driver_id as integer,",
+				"          driver_ref as string,",
+				"          permanent_number as integer,",
+				"          driver_code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          full_name as string,",
+				"          dob as date,",
+				"          nationality as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          driver_id = driverId,",
+				"          driver_ref = driverRef,",
+				"          permanent_number = number,",
+				"          driver_code = code,",
+				"          forename,",
+				"          surname,",
+				"          full_name,",
+				"          dob,",
+				"          nationality",
+				"     )) ~> SinkDimDriver"
+			]
+		}
+	}
+}
