@@ -1,0 +1,83 @@
+{
+	"name": "Df_Silver_Constructors",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Bronze_Constructors",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Constructors",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LimpiarConstructors"
+				},
+				{
+					"name": "FiltrarConstructors"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          constructorId as string,",
+				"          constructorRef as string,",
+				"          name as string,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(constructorId = toInteger(trim(constructorId)),",
+				"          constructorRef = lower(trim(constructorRef)),",
+				"          name = trim(name),",
+				"          nationality = iif(isNull(nationality) || trim(nationality) == '' || trim(nationality) == '\\\\N', 'Unknown', initCap(trim(nationality))),",
+				"          url = iif(trim(url) == '\\\\N' || trim(url) == '', toString(null()), trim(url))) ~> LimpiarConstructors",
+				"LimpiarConstructors filter(!isNull(constructorId) &&",
+				"!isNull(constructorRef) && constructorRef != '' && constructorRef != '\\\\N' &&",
+				"!isNull(name) && name != '' && name != '\\\\N' &&",
+				"!isNull(nationality) && nationality != '') ~> FiltrarConstructors",
+				"FiltrarConstructors sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          constructorId as integer,",
+				"          constructorRef as string,",
+				"          name as string,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          constructorId,",
+				"          constructorRef,",
+				"          name,",
+				"          nationality,",
+				"          url",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

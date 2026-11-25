@@ -1,0 +1,100 @@
+{
+	"name": "Df_Silver_Circuits",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Bronze_Circuits",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Circuits",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LimpiarCircuits"
+				},
+				{
+					"name": "FiltrarCircuits"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          circuitId as string,",
+				"          circuitRef as string,",
+				"          name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          lat as string,",
+				"          lng as string,",
+				"          alt as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(circuitId = toInteger(trim(circuitId)),",
+				"          circuitRef = lower(trim(circuitRef)),",
+				"          name = initCap(trim(name)),",
+				"          location = initCap(trim(location)),",
+				"          country = initCap(trim(country)),",
+				"          lat = toDecimal(trim(lat), 9, 6),",
+				"          lng = toDecimal(trim(lng), 9, 6),",
+				"          alt = toInteger(trim(alt)),",
+				"          url = iif(trim(url) == '\\\\N' || trim(url) == '', toString(null()), trim(url))) ~> LimpiarCircuits",
+				"LimpiarCircuits filter(!isNull(circuitId) &&",
+				"!isNull(circuitRef) && circuitRef != '' && circuitRef != '\\\\N' &&",
+				"!isNull(name) && name != '' && name != '\\\\N' &&",
+				"!isNull(location) && location != '' && location != '\\\\N' &&",
+				"!isNull(country) && country != '' && country != '\\\\N') ~> FiltrarCircuits",
+				"FiltrarCircuits sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          circuitId as integer,",
+				"          circuitRef as string,",
+				"          name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          lat as decimal(9,6),",
+				"          lng as decimal(9,6),",
+				"          alt as integer,",
+				"          url as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          circuitId,",
+				"          circuitRef,",
+				"          name,",
+				"          location,",
+				"          country,",
+				"          lat,",
+				"          lng,",
+				"          alt,",
+				"          url",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

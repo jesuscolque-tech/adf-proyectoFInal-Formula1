@@ -41,8 +41,7 @@
 			},
 			{
 				"name": "time",
-				"type": "time",
-				"scale": 0
+				"type": "varchar"
 			},
 			{
 				"name": "url",
@@ -54,8 +53,7 @@
 			},
 			{
 				"name": "fp1_time",
-				"type": "time",
-				"scale": 0
+				"type": "varchar"
 			},
 			{
 				"name": "fp2_date",
@@ -63,8 +61,7 @@
 			},
 			{
 				"name": "fp2_time",
-				"type": "time",
-				"scale": 0
+				"type": "varchar"
 			},
 			{
 				"name": "fp3_date",
@@ -72,8 +69,7 @@
 			},
 			{
 				"name": "fp3_time",
-				"type": "time",
-				"scale": 0
+				"type": "varchar"
 			},
 			{
 				"name": "quali_date",
@@ -81,8 +77,7 @@
 			},
 			{
 				"name": "quali_time",
-				"type": "time",
-				"scale": 0
+				"type": "varchar"
 			},
 			{
 				"name": "sprint_date",
@@ -90,8 +85,7 @@
 			},
 			{
 				"name": "sprint_time",
-				"type": "time",
-				"scale": 0
+				"type": "varchar"
 			}
 		],
 		"typeProperties": {

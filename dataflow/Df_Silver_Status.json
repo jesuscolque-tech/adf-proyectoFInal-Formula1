@@ -1,0 +1,71 @@
+{
+	"name": "Df_Silver_Status",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Bronze_Status",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Status",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LimpiarStatus"
+				},
+				{
+					"name": "FiltrarStatus"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          statusId as string,",
+				"          status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(statusId = toInteger(trim(statusId)),",
+				"          status = trim(status)) ~> LimpiarStatus",
+				"LimpiarStatus filter(!isNull(statusId) &&",
+				"!isNull(status) &&",
+				"status != '' &&",
+				"status != '\\\\N') ~> FiltrarStatus",
+				"FiltrarStatus sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          statusId as integer,",
+				"          status as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          statusId,",
+				"          status",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

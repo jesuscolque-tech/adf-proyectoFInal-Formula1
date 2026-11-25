@@ -1,0 +1,139 @@
+{
+	"name": "Df_Silver_Races",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Bronze_Races",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Races",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LimpiarRaces"
+				},
+				{
+					"name": "FiltrarRaces"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          raceId as string,",
+				"          year as string,",
+				"          round as string,",
+				"          circuitId as string,",
+				"          name as string,",
+				"          date as string,",
+				"          time as string,",
+				"          url as string,",
+				"          fp1_date as string,",
+				"          fp1_time as string,",
+				"          fp2_date as string,",
+				"          fp2_time as string,",
+				"          fp3_date as string,",
+				"          fp3_time as string,",
+				"          quali_date as string,",
+				"          quali_time as string,",
+				"          sprint_date as string,",
+				"          sprint_time as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(raceId = toInteger(trim(raceId)),",
+				"          year = toInteger(trim(year)),",
+				"          round = toInteger(trim(round)),",
+				"          circuitId = toInteger(trim(circuitId)),",
+				"          name = initCap(trim(name)),",
+				"          date = iif(isDate(trim(date), 'yyyy-MM-dd'),     toDate(trim(date), 'yyyy-MM-dd'), iif(isDate(trim(date), 'dd/MM/yyyy'),     toDate(trim(date), 'dd/MM/yyyy'), iif(isDate(trim(date), 'MM-dd-yyyy'),     toDate(trim(date), 'MM-dd-yyyy'), iif(isDate(trim(date), 'yyyy/MM/dd'),     toDate(trim(date), 'yyyy/MM/dd'), iif(isDate(trim(date), 'dd-MMM-yyyy'),     toDate(trim(date), 'dd-MMM-yyyy'),     toDate(null()) ))))),",
+				"          time = iif(trim(time) == '\\\\N' || trim(time) == '', toString(null()), trim(time)),",
+				"          url = iif(trim(url) == '\\\\N' || trim(url) == '', toString(null()), trim(url)),",
+				"          fp1_date = toDate(trim(fp1_date), 'yyyy-MM-dd'),",
+				"          fp1_time = iif(trim(fp1_time) == '\\\\N' || trim(fp1_time) == '', toString(null()), trim(fp1_time)),",
+				"          fp2_date = toDate(trim(fp2_date), 'yyyy-MM-dd'),",
+				"          fp2_time = iif(trim(fp2_time) == '\\\\N' || trim(fp2_time) == '', toString(null()), trim(fp2_time)),",
+				"          fp3_date = toDate(trim(fp3_date), 'yyyy-MM-dd'),",
+				"          fp3_time = iif(trim(fp3_time) == '\\\\N' || trim(fp3_time) == '', toString(null()), trim(fp3_time)),",
+				"          quali_date = toDate(trim(quali_date), 'yyyy-MM-dd'),",
+				"          quali_time = iif(trim(quali_time) == '\\\\N' || trim(quali_time) == '', toString(null()), trim(quali_time)),",
+				"          sprint_date = toDate(trim(sprint_date), 'yyyy-MM-dd'),",
+				"          sprint_time = iif(trim(sprint_time) == '\\\\N' || trim(sprint_time) == '', toString(null()), trim(sprint_time))) ~> LimpiarRaces",
+				"LimpiarRaces filter(!isNull(raceId) &&",
+				"!isNull(year) &&",
+				"!isNull(round) &&",
+				"!isNull(circuitId) &&",
+				"!isNull(name) &&",
+				"name != '' &&",
+				"name != '\\\\N' &&",
+				"!isNull(date)) ~> FiltrarRaces",
+				"FiltrarRaces sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          raceId as integer,",
+				"          year as integer,",
+				"          round as integer,",
+				"          circuitId as integer,",
+				"          name as string,",
+				"          date as date,",
+				"          time as string,",
+				"          url as string,",
+				"          fp1_date as date,",
+				"          fp1_time as string,",
+				"          fp2_date as date,",
+				"          fp2_time as string,",
+				"          fp3_date as date,",
+				"          fp3_time as string,",
+				"          quali_date as date,",
+				"          quali_time as string,",
+				"          sprint_date as date,",
+				"          sprint_time as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          raceId,",
+				"          year,",
+				"          round,",
+				"          circuitId,",
+				"          name,",
+				"          date,",
+				"          time,",
+				"          url,",
+				"          fp1_date,",
+				"          fp1_time,",
+				"          fp2_date,",
+				"          fp2_time,",
+				"          fp3_date,",
+				"          fp3_time,",
+				"          quali_date,",
+				"          quali_time,",
+				"          sprint_date,",
+				"          sprint_time",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

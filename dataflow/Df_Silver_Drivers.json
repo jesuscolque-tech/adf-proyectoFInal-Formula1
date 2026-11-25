@@ -1,0 +1,112 @@
+{
+	"name": "Df_Silver_Drivers",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Bronze_Drivers",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Drivers",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LimpiarDrivers"
+				},
+				{
+					"name": "FiltrarDrivers"
+				},
+				{
+					"name": "EliminarDuplicados"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          driverId as string,",
+				"          driverRef as string,",
+				"          number as string,",
+				"          code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          dob as string,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(driverId = toInteger(trim(driverId)),",
+				"          driverRef = initCap(trim(driverRef)),",
+				"          number = toInteger(trim(number)),",
+				"          code = iif(trim(code) == '\\\\N' || trim(code) == '', toString(null()), upper(trim(code))),",
+				"          forename = initCap(trim(forename)),",
+				"          surname = initCap(trim(surname)),",
+				"          dob = toDate(trim(dob), 'yyyy-MM-dd'),",
+				"          nationality = initCap(trim(nationality)),",
+				"          url = iif(trim(url) == '\\\\N' || trim(url) == '', toString(null()), trim(url))) ~> LimpiarDrivers",
+				"LimpiarDrivers filter(!isNull(driverId) &&",
+				"!isNull(driverRef) && trim(driverRef) != '' && trim(driverRef) != '\\\\N' &&",
+				"!isNull(forename) && trim(forename) != '' && trim(forename) != '\\\\N' &&",
+				"!isNull(surname) && trim(surname) != '' && trim(surname) != '\\\\N' &&",
+				"!isNull(nationality) && trim(nationality) != '' && trim(nationality) != '\\\\N') ~> FiltrarDrivers",
+				"FiltrarDrivers aggregate(groupBy(driverId),",
+				"     driverRef = first(driverRef),",
+				"          number = first(number),",
+				"          code = first(code),",
+				"          forename = first(forename),",
+				"          surname = first(surname),",
+				"          dob = first(dob),",
+				"          nationality = first(nationality),",
+				"          url = first(url)) ~> EliminarDuplicados",
+				"EliminarDuplicados sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          driverId as integer,",
+				"          driverRef as string,",
+				"          number as integer,",
+				"          code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          dob as date,",
+				"          nationality as string,",
+				"          url as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          driverId,",
+				"          driverRef,",
+				"          number,",
+				"          code,",
+				"          forename,",
+				"          surname,",
+				"          dob,",
+				"          nationality,",
+				"          url",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
