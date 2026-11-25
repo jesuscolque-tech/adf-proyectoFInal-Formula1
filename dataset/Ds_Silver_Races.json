@@ -1,0 +1,102 @@
+{
+	"name": "Ds_Silver_Races",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Silver"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "year",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "round",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "circuitId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "date",
+				"type": "date"
+			},
+			{
+				"name": "time",
+				"type": "time",
+				"scale": 0
+			},
+			{
+				"name": "url",
+				"type": "nvarchar"
+			},
+			{
+				"name": "fp1_date",
+				"type": "date"
+			},
+			{
+				"name": "fp1_time",
+				"type": "time",
+				"scale": 0
+			},
+			{
+				"name": "fp2_date",
+				"type": "date"
+			},
+			{
+				"name": "fp2_time",
+				"type": "time",
+				"scale": 0
+			},
+			{
+				"name": "fp3_date",
+				"type": "date"
+			},
+			{
+				"name": "fp3_time",
+				"type": "time",
+				"scale": 0
+			},
+			{
+				"name": "quali_date",
+				"type": "date"
+			},
+			{
+				"name": "quali_time",
+				"type": "time",
+				"scale": 0
+			},
+			{
+				"name": "sprint_date",
+				"type": "date"
+			},
+			{
+				"name": "sprint_time",
+				"type": "time",
+				"scale": 0
+			}
+		],
+		"typeProperties": {
+			"schema": "silver",
+			"table": "races"
+		}
+	}
+}
