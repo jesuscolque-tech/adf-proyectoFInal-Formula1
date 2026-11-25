@@ -1,0 +1,133 @@
+{
+	"name": "Ds_Gold_FactRaceResults",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "result_sk",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "result_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "race_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "date_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driver_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructor_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "circuit_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "status_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "grid_position",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "final_position",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "position_order",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "points",
+				"type": "decimal",
+				"precision": 6,
+				"scale": 2
+			},
+			{
+				"name": "laps_completed",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "race_time_ms",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "fastest_lap_ms",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "fastest_lap_speed_kph",
+				"type": "decimal",
+				"precision": 6,
+				"scale": 3
+			},
+			{
+				"name": "is_win",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "is_podium",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "is_dnf",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "positions_gained",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "driver_age_at_race",
+				"type": "decimal",
+				"precision": 4,
+				"scale": 1
+			},
+			{
+				"name": "_loaded_at",
+				"type": "datetime2",
+				"scale": 0
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "fact_race_results"
+		}
+	}
+}

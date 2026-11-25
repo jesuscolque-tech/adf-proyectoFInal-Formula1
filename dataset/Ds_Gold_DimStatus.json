@@ -1,0 +1,42 @@
+{
+	"name": "Ds_Gold_DimStatus",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "status_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "status_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "status_description",
+				"type": "varchar"
+			},
+			{
+				"name": "status_category",
+				"type": "varchar"
+			},
+			{
+				"name": "is_finished_flag",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_status"
+		}
+	}
+}

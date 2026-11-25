@@ -1,0 +1,63 @@
+{
+	"name": "Ds_Gold_DimDriver",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "driver_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driver_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driver_ref",
+				"type": "varchar"
+			},
+			{
+				"name": "permanent_number",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "driver_code",
+				"type": "char"
+			},
+			{
+				"name": "forename",
+				"type": "varchar"
+			},
+			{
+				"name": "surname",
+				"type": "varchar"
+			},
+			{
+				"name": "full_name",
+				"type": "varchar"
+			},
+			{
+				"name": "dob",
+				"type": "date"
+			},
+			{
+				"name": "nationality",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_driver"
+		}
+	}
+}

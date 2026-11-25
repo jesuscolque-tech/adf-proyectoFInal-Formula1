@@ -1,0 +1,63 @@
+{
+	"name": "Ds_Gold_DimCircuit",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "circuit_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "circuit_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "circuit_ref",
+				"type": "varchar"
+			},
+			{
+				"name": "circuit_name",
+				"type": "varchar"
+			},
+			{
+				"name": "location",
+				"type": "varchar"
+			},
+			{
+				"name": "country",
+				"type": "varchar"
+			},
+			{
+				"name": "latitude",
+				"type": "decimal",
+				"precision": 9,
+				"scale": 6
+			},
+			{
+				"name": "longitude",
+				"type": "decimal",
+				"precision": 9,
+				"scale": 6
+			},
+			{
+				"name": "altitude_m",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_circuit"
+		}
+	}
+}

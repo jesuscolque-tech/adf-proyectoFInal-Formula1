@@ -1,0 +1,76 @@
+{
+	"name": "Ds_Gold_FactPitStops",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "pit_stop_sk",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "race_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "date_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driver_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructor_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "circuit_sk",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "stop_number",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "lap_number",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "duration_ms",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "duration_sec",
+				"type": "decimal",
+				"precision": 8,
+				"scale": 3
+			},
+			{
+				"name": "_loaded_at",
+				"type": "datetime2",
+				"scale": 0
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "fact_pit_stops"
+		}
+	}
+}
