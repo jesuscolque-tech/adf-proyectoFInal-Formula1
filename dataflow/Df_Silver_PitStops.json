@@ -1,0 +1,107 @@
+{
+	"name": "Df_Silver_PitStops",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Bronze_PitStops",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_PitStops",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LimpiarPitStops"
+				},
+				{
+					"name": "FiltrarPitStops"
+				},
+				{
+					"name": "EliminarDuplicados"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          raceId as string,",
+				"          driverId as string,",
+				"          stop as string,",
+				"          lap as string,",
+				"          time as string,",
+				"          duration as string,",
+				"          milliseconds as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(raceId = toInteger(trim(raceId)),",
+				"          driverId = toInteger(trim(driverId)),",
+				"          stop = toInteger(trim(stop)),",
+				"          lap = toInteger(trim(lap)),",
+				"          time = iif(trim(time) == '\\\\N' || trim(time) == '', toString(null()), trim(time)),",
+				"          duration = iif(trim(duration) == '\\\\N' || trim(duration) == '', toString(null()), trim(duration)),",
+				"          milliseconds = toInteger(trim(milliseconds))) ~> LimpiarPitStops",
+				"LimpiarPitStops filter(!isNull(raceId) &&",
+				"!isNull(driverId) &&",
+				"!isNull(stop) &&",
+				"!isNull(lap) &&",
+				"!isNull(milliseconds) &&",
+				"stop >= 1 &&",
+				"stop <= 255 &&",
+				"lap >= 1 &&",
+				"lap <= 32767 &&",
+				"milliseconds > 0) ~> FiltrarPitStops",
+				"FiltrarPitStops aggregate(groupBy(raceId,",
+				"          driverId,",
+				"          stop),",
+				"     lap = first(lap),",
+				"          time = first(time),",
+				"          duration = first(duration),",
+				"          milliseconds = first(milliseconds)) ~> EliminarDuplicados",
+				"EliminarDuplicados sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          raceId as integer,",
+				"          driverId as integer,",
+				"          stop as integer,",
+				"          lap as integer,",
+				"          time as timestamp,",
+				"          duration as string,",
+				"          milliseconds as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          raceId,",
+				"          driverId,",
+				"          stop,",
+				"          lap,",
+				"          time,",
+				"          duration,",
+				"          milliseconds",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
