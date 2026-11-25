@@ -1,0 +1,97 @@
+{
+	"name": "Df_Gold_DimRace",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Races",
+						"type": "DatasetReference"
+					},
+					"name": "SourceRaces"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimRace",
+						"type": "DatasetReference"
+					},
+					"name": "SinkDimRace"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SeleccionarDimRace"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          raceId as integer,",
+				"          year as integer,",
+				"          round as integer,",
+				"          circuitId as integer,",
+				"          name as string,",
+				"          date as date,",
+				"          time as string,",
+				"          url as string,",
+				"          fp1_date as date,",
+				"          fp1_time as string,",
+				"          fp2_date as date,",
+				"          fp2_time as string,",
+				"          fp3_date as date,",
+				"          fp3_time as string,",
+				"          quali_date as date,",
+				"          quali_time as string,",
+				"          sprint_date as date,",
+				"          sprint_time as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceRaces",
+				"SourceRaces select(mapColumn(",
+				"          raceId,",
+				"          year,",
+				"          round,",
+				"          name,",
+				"          date,",
+				"          time",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimRace",
+				"SeleccionarDimRace sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          race_sk as integer,",
+				"          race_id as integer,",
+				"          season_year as integer,",
+				"          round_number as integer,",
+				"          race_name as string,",
+				"          race_date as date,",
+				"          race_time_utc as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          race_id = raceId,",
+				"          season_year = year,",
+				"          round_number = round,",
+				"          race_name = name,",
+				"          race_date = date,",
+				"          race_time_utc = time",
+				"     )) ~> SinkDimRace"
+			]
+		}
+	}
+}

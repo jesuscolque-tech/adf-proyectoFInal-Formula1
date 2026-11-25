@@ -12,26 +12,36 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "status_sk",
+				"name": "race_sk",
 				"type": "int",
 				"precision": 10
 			},
 			{
-				"name": "status_id",
+				"name": "race_id",
 				"type": "int",
 				"precision": 10
 			},
 			{
-				"name": "status_description",
+				"name": "season_year",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "round_number",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "race_name",
 				"type": "varchar"
 			},
 			{
-				"name": "status_category",
-				"type": "varchar"
+				"name": "race_date",
+				"type": "date"
 			},
 			{
-				"name": "is_finished_flag",
-				"type": "bit"
+				"name": "race_time_utc",
+				"type": "varchar"
 			}
 		],
 		"typeProperties": {

@@ -1,0 +1,92 @@
+{
+	"name": "Df_Gold_DimStatus",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Status",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimStatus",
+						"type": "DatasetReference"
+					},
+					"name": "SinkDimStatus"
+				}
+			],
+			"transformations": [
+				{
+					"name": "GenerarDimStatus"
+				},
+				{
+					"name": "SeleccionarDimStatus"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          statusId as integer,",
+				"          status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(status_category = case(\r",
+				"    status == 'Finished' ||\r",
+				"    regexMatch(status, '^[+][0-9]+ Laps?$'),\r",
+				"    'Finished',\r",
+				"\r",
+				"    regexMatch(lower(status), '.*(accident|collision|spun off).*'),\r",
+				"    'Accident',\r",
+				"\r",
+				"    regexMatch(lower(status), '.*(engine|gearbox|transmission|clutch|hydraulic|electrical|suspension|brake|mechanical|radiator|overheating|exhaust|oil|fuel|water|turbo|puncture|tyre|wheel|driveshaft|differential|steering|alternator|battery|throttle|electronic|pneumatic|drivetrain|ignition|halfshaft|crankshaft|injection|distributor|cv joint|track rod|technical|power loss).*'),\r",
+				"    'Mechanical',\r",
+				"\r",
+				"    'Other'\r",
+				"),",
+				"          is_finished_flag = status == 'Finished' || regexMatch(status, '^[+][0-9]+ Laps?$')) ~> GenerarDimStatus",
+				"GenerarDimStatus select(mapColumn(",
+				"          statusId,",
+				"          status,",
+				"          status_category,",
+				"          is_finished_flag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimStatus",
+				"SeleccionarDimStatus sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          status_sk as integer,",
+				"          status_id as integer,",
+				"          status_description as string,",
+				"          status_category as string,",
+				"          is_finished_flag as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          status_id = statusId,",
+				"          status_description = status,",
+				"          status_category,",
+				"          is_finished_flag",
+				"     )) ~> SinkDimStatus"
+			]
+		}
+	}
+}
