@@ -1,0 +1,203 @@
+{
+	"name": "Df_Gold_FactPitStops",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_PitStops",
+						"type": "DatasetReference"
+					},
+					"name": "SourcePitStops"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Races",
+						"type": "DatasetReference"
+					},
+					"name": "SourceRaces"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Silver_Results",
+						"type": "DatasetReference"
+					},
+					"name": "SourceResults"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimRace",
+						"type": "DatasetReference"
+					},
+					"name": "SourceDimRace"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimDate",
+						"type": "DatasetReference"
+					},
+					"name": "SourceDimDate"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimDriver",
+						"type": "DatasetReference"
+					},
+					"name": "SourceDimDriver"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimConstructor",
+						"type": "DatasetReference"
+					},
+					"name": "SourceDimConstructor"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_DimCircuit",
+						"type": "DatasetReference"
+					},
+					"name": "SourceDimCircuit"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          raceId as integer,",
+				"          driverId as integer,",
+				"          stop as integer,",
+				"          lap as integer,",
+				"          time as timestamp,",
+				"          duration as string,",
+				"          milliseconds as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourcePitStops",
+				"source(output(",
+				"          raceId as integer,",
+				"          year as integer,",
+				"          round as integer,",
+				"          circuitId as integer,",
+				"          name as string,",
+				"          date as date,",
+				"          time as string,",
+				"          url as string,",
+				"          fp1_date as date,",
+				"          fp1_time as string,",
+				"          fp2_date as date,",
+				"          fp2_time as string,",
+				"          fp3_date as date,",
+				"          fp3_time as string,",
+				"          quali_date as date,",
+				"          quali_time as string,",
+				"          sprint_date as date,",
+				"          sprint_time as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceRaces",
+				"source(output(",
+				"          resultId as integer,",
+				"          raceId as integer,",
+				"          driverId as integer,",
+				"          constructorId as integer,",
+				"          number as integer,",
+				"          grid as integer,",
+				"          position as integer,",
+				"          positionText as string,",
+				"          positionOrder as integer,",
+				"          points as decimal(6,2),",
+				"          laps as integer,",
+				"          time as string,",
+				"          milliseconds as long,",
+				"          fastestLap as integer,",
+				"          rank as integer,",
+				"          fastestLapTime as string,",
+				"          fastestLapSpeed as decimal(6,3),",
+				"          statusId as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceResults",
+				"source(output(",
+				"          race_sk as integer,",
+				"          race_id as integer,",
+				"          season_year as integer,",
+				"          round_number as integer,",
+				"          race_name as string,",
+				"          race_date as date,",
+				"          race_time_utc as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceDimRace",
+				"source(output(",
+				"          date_sk as integer,",
+				"          full_date as date,",
+				"          year as integer,",
+				"          decade as string,",
+				"          quarter as integer,",
+				"          month as integer,",
+				"          month_name as string,",
+				"          day_of_week as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceDimDate",
+				"source(output(",
+				"          driver_sk as integer,",
+				"          driver_id as integer,",
+				"          driver_ref as string,",
+				"          permanent_number as integer,",
+				"          driver_code as string,",
+				"          forename as string,",
+				"          surname as string,",
+				"          full_name as string,",
+				"          dob as date,",
+				"          nationality as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceDimDriver",
+				"source(output(",
+				"          constructor_sk as integer,",
+				"          constructor_id as integer,",
+				"          constructor_ref as string,",
+				"          constructor_name as string,",
+				"          nationality as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceDimConstructor",
+				"source(output(",
+				"          circuit_sk as integer,",
+				"          circuit_id as integer,",
+				"          circuit_ref as string,",
+				"          circuit_name as string,",
+				"          location as string,",
+				"          country as string,",
+				"          latitude as decimal(9,6),",
+				"          longitude as decimal(9,6),",
+				"          altitude_m as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceDimCircuit"
+			]
+		}
+	}
+}
