@@ -121,6 +121,9 @@
 				},
 				{
 					"name": "SeleccionarFactPitStops"
+				},
+				{
+					"name": "FiltrarPitStopsValidos"
 				}
 			],
 			"scriptLines": [
@@ -331,7 +334,7 @@
 				"          lap_number = toInteger(lap),",
 				"          duration_ms = toInteger(milliseconds),",
 				"          duration_sec = toDecimal(milliseconds / 1000.0, 8, 3)) ~> GenerarFactPitStops",
-				"GenerarFactPitStops select(mapColumn(",
+				"FiltrarPitStopsValidos select(mapColumn(",
 				"          race_sk,",
 				"          date_sk,",
 				"          driver_sk,",
@@ -344,6 +347,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> SeleccionarFactPitStops",
+				"GenerarFactPitStops filter(!isNull(constructor_sk)) ~> FiltrarPitStopsValidos",
 				"SeleccionarFactPitStops sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
