@@ -64,8 +64,65 @@
 					"name": "SourceDimStatus"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_FactRaceResults",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SeleccionarRaces"
+				},
+				{
+					"name": "LookupRaces"
+				},
+				{
+					"name": "SeleccionarDimRace"
+				},
+				{
+					"name": "LookupDimRace"
+				},
+				{
+					"name": "SeleccionarDimDate"
+				},
+				{
+					"name": "SeleccionarDimDriver"
+				},
+				{
+					"name": "SeleccionarDimConstructor"
+				},
+				{
+					"name": "SeleccionarDimStatus"
+				},
+				{
+					"name": "SeleccionarDimCircuit"
+				},
+				{
+					"name": "LookupDimDate"
+				},
+				{
+					"name": "LookupDimDriver"
+				},
+				{
+					"name": "LookupDimConstructor"
+				},
+				{
+					"name": "LookupDimCircuit"
+				},
+				{
+					"name": "LookupDimStatus"
+				},
+				{
+					"name": "GenerarFactResults"
+				},
+				{
+					"name": "SeleccionarFactResults"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          resultId as integer,",
@@ -194,7 +251,176 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> SourceDimStatus"
+				"     format: 'table') ~> SourceDimStatus",
+				"SourceRaces select(mapColumn(",
+				"          ref_raceId = raceId,",
+				"          ref_circuitId = circuitId,",
+				"          ref_raceDate = date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarRaces",
+				"SourceResults, SeleccionarRaces lookup(raceId == ref_raceId,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupRaces",
+				"SourceDimRace select(mapColumn(",
+				"          race_sk,",
+				"          dim_race_id = race_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimRace",
+				"LookupRaces, SeleccionarDimRace lookup(raceId == dim_race_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimRace",
+				"SourceDimDate select(mapColumn(",
+				"          date_sk,",
+				"          full_date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimDate",
+				"SourceDimDriver select(mapColumn(",
+				"          driver_sk,",
+				"          dim_driver_id = driver_id,",
+				"          dob",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimDriver",
+				"SourceDimConstructor select(mapColumn(",
+				"          constructor_sk,",
+				"          dim_constructor_id = constructor_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimConstructor",
+				"SourceDimStatus select(mapColumn(",
+				"          status_sk,",
+				"          dim_status_id = status_id,",
+				"          is_finished_flag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimStatus",
+				"SourceDimCircuit select(mapColumn(",
+				"          circuit_sk,",
+				"          dim_circuit_id = circuit_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimCircuit",
+				"LookupDimRace, SeleccionarDimDate lookup(ref_raceDate == full_date,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimDate",
+				"LookupDimDate, SeleccionarDimDriver lookup(driverId == dim_driver_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimDriver",
+				"LookupDimDriver, SeleccionarDimConstructor lookup(constructorId == dim_constructor_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimConstructor",
+				"LookupDimConstructor, SeleccionarDimCircuit lookup(ref_circuitId == dim_circuit_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimCircuit",
+				"LookupDimCircuit, SeleccionarDimStatus lookup(statusId == dim_status_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimStatus",
+				"LookupDimStatus derive(result_id = resultId,",
+				"          grid_position = toInteger(grid),",
+				"          final_position = toInteger(position),",
+				"          position_order = toInteger(positionOrder),",
+				"          laps_completed = toInteger(laps),",
+				"          race_time_ms = toLong(milliseconds),",
+				"          fastest_lap_speed_kph = toDecimal(fastestLapSpeed,6,3),",
+				"          is_win = toInteger(iif(positionOrder == 1, 1, 0)),",
+				"          is_podium = toInteger(iif(positionOrder >= 1 && positionOrder <= 3, 1, 0)),",
+				"          is_dnf = toInteger(iif(is_finished_flag, 0, 1)),",
+				"          positions_gained = iif(grid > 0 && !isNull(position), toInteger(grid - position), toInteger(null())),",
+				"          driver_age_at_race = toDecimal(monthsBetween(ref_raceDate, dob) / 12.0, 5, 2),",
+				"          fastest_lap_ms = iif(     isNull(fastestLapTime) ||     size(split(fastestLapTime, ':')) != 2,    \r",
+				" toInteger(null()),     \r",
+				" toInteger(toInteger(split(fastestLapTime, ':')[1]) * 60000  \r",
+				" + round(toDouble(split(fastestLapTime, ':')[2]) * 1000, 0)     ) )) ~> GenerarFactResults",
+				"GenerarFactResults select(mapColumn(",
+				"          resultId,",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          status_sk,",
+				"          grid_position,",
+				"          final_position,",
+				"          position_order,",
+				"          points,",
+				"          laps_completed,",
+				"          race_time_ms,",
+				"          fastest_lap_ms,",
+				"          fastest_lap_speed_kph,",
+				"          is_win,",
+				"          is_podium,",
+				"          is_dnf,",
+				"          positions_gained,",
+				"          driver_age_at_race",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarFactResults",
+				"SeleccionarFactResults sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          result_sk as long,",
+				"          result_id as integer,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          status_sk as integer,",
+				"          grid_position as integer,",
+				"          final_position as integer,",
+				"          position_order as integer,",
+				"          points as decimal(6,2),",
+				"          laps_completed as integer,",
+				"          race_time_ms as long,",
+				"          fastest_lap_ms as integer,",
+				"          fastest_lap_speed_kph as decimal(6,3),",
+				"          is_win as integer,",
+				"          is_podium as integer,",
+				"          is_dnf as integer,",
+				"          positions_gained as integer,",
+				"          driver_age_at_race as decimal(4,1),",
+				"          {_loaded_at} as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          result_id = resultId,",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          status_sk,",
+				"          grid_position,",
+				"          final_position,",
+				"          position_order,",
+				"          points,",
+				"          laps_completed,",
+				"          race_time_ms,",
+				"          fastest_lap_ms,",
+				"          fastest_lap_speed_kph,",
+				"          is_win,",
+				"          is_podium,",
+				"          is_dnf,",
+				"          positions_gained,",
+				"          driver_age_at_race",
+				"     )) ~> sink1"
 			]
 		}
 	}
