@@ -64,7 +64,15 @@
 					"name": "SourceDimCircuit"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_Gold_FactPitStops",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "SeleccionarRaces"
@@ -107,6 +115,12 @@
 				},
 				{
 					"name": "LookupDimCircuit"
+				},
+				{
+					"name": "GenerarFactPitStops"
+				},
+				{
+					"name": "SeleccionarFactPitStops"
 				}
 			],
 			"scriptLines": [
@@ -312,7 +326,58 @@
 				"LookupDimConstructor, SeleccionarDimCircuit lookup(ref_circuitId == dim_circuit_id,",
 				"     multiple: false,",
 				"     pickup: 'any',",
-				"     broadcast: 'auto')~> LookupDimCircuit"
+				"     broadcast: 'auto')~> LookupDimCircuit",
+				"LookupDimCircuit derive(stop_number = toInteger(stop),",
+				"          lap_number = toInteger(lap),",
+				"          duration_ms = toInteger(milliseconds),",
+				"          duration_sec = toDecimal(milliseconds / 1000.0, 8, 3)) ~> GenerarFactPitStops",
+				"GenerarFactPitStops select(mapColumn(",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          stop_number,",
+				"          lap_number,",
+				"          duration_ms,",
+				"          duration_sec",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarFactPitStops",
+				"SeleccionarFactPitStops sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          pit_stop_sk as long,",
+				"          race_sk as integer,",
+				"          date_sk as integer,",
+				"          driver_sk as integer,",
+				"          constructor_sk as integer,",
+				"          circuit_sk as integer,",
+				"          stop_number as integer,",
+				"          lap_number as integer,",
+				"          duration_ms as integer,",
+				"          duration_sec as decimal(8,3),",
+				"          {_loaded_at} as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          race_sk,",
+				"          date_sk,",
+				"          driver_sk,",
+				"          constructor_sk,",
+				"          circuit_sk,",
+				"          stop_number,",
+				"          lap_number,",
+				"          duration_ms,",
+				"          duration_sec",
+				"     )) ~> sink1"
 			]
 		}
 	}
