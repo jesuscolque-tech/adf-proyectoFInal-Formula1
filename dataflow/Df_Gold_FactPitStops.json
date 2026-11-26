@@ -65,7 +65,50 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "SeleccionarRaces"
+				},
+				{
+					"name": "LookupRaces"
+				},
+				{
+					"name": "SeleccionarResults"
+				},
+				{
+					"name": "SeleccionarDimRace"
+				},
+				{
+					"name": "SeleccionarDimDate"
+				},
+				{
+					"name": "SeleccionarDimDriver"
+				},
+				{
+					"name": "SeleccionarDimConstructor"
+				},
+				{
+					"name": "SeleccionarDimCircuit"
+				},
+				{
+					"name": "LookupResults"
+				},
+				{
+					"name": "LookupDimRace"
+				},
+				{
+					"name": "LookupDimDate"
+				},
+				{
+					"name": "LookupDimDriver"
+				},
+				{
+					"name": "LookupDimConstructor"
+				},
+				{
+					"name": "LookupDimCircuit"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          raceId as integer,",
@@ -196,7 +239,80 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> SourceDimCircuit"
+				"     format: 'table') ~> SourceDimCircuit",
+				"SourceRaces select(mapColumn(",
+				"          ref_raceId = raceId,",
+				"          ref_circuitId = circuitId,",
+				"          ref_raceDate = date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarRaces",
+				"SourcePitStops, SeleccionarRaces lookup(raceId == ref_raceId,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupRaces",
+				"SourceResults select(mapColumn(",
+				"          result_raceId = raceId,",
+				"          result_driverId = driverId,",
+				"          ref_constructorId = constructorId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarResults",
+				"SourceDimRace select(mapColumn(",
+				"          race_sk,",
+				"          dim_race_id = race_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimRace",
+				"SourceDimDate select(mapColumn(",
+				"          date_sk,",
+				"          full_date",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimDate",
+				"SourceDimDriver select(mapColumn(",
+				"          driver_sk,",
+				"          dim_driver_id = driver_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimDriver",
+				"SourceDimConstructor select(mapColumn(",
+				"          constructor_sk,",
+				"          dim_constructor_id = constructor_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimConstructor",
+				"SourceDimCircuit select(mapColumn(",
+				"          circuit_sk,",
+				"          dim_circuit_id = circuit_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarDimCircuit",
+				"LookupRaces, SeleccionarResults lookup(raceId == result_raceId",
+				"     && driverId == result_driverId,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupResults",
+				"LookupResults, SeleccionarDimRace lookup(raceId == dim_race_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimRace",
+				"LookupDimRace, SeleccionarDimDate lookup(ref_raceDate == full_date,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimDate",
+				"LookupDimDate, SeleccionarDimDriver lookup(driverId == dim_driver_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimDriver",
+				"LookupDimDriver, SeleccionarDimConstructor lookup(ref_constructorId == dim_constructor_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimConstructor",
+				"LookupDimConstructor, SeleccionarDimCircuit lookup(ref_circuitId == dim_circuit_id,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookupDimCircuit"
 			]
 		}
 	}
